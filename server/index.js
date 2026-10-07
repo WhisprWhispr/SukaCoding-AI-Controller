@@ -172,6 +172,18 @@ client.on('message', async (message) => {
   
   if (message.from === 'status@broadcast') return;
   
+  // Daftar nomor yang TIDAK BOLEH dibalas oleh AI (format: kode_negara + nomor + @c.us)
+  const ignoredNumbers = [
+    '62895393903656@c.us', // Nomor 1 yang diminta user
+    '6287829112109@c.us',  // Nomor 2 yang diminta user
+    '0@c.us',              // Nomor resmi sistem WhatsApp (Official WhatsApp account)
+  ];
+
+  if (ignoredNumbers.includes(message.from)) {
+    console.log(`Pesan dari ${message.from} diabaikan (masuk daftar hitam AI).`);
+    return;
+  }
+
   if (!botSettings.botEnabled) {
     console.log('Bot dimatikan, mengabaikan pesan.');
     return;
