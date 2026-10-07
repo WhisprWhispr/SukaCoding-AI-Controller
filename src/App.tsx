@@ -21,7 +21,8 @@ import {
   Trash2,
   Link2,
   Inbox,
-  Send
+  Send,
+  LogOut
 } from 'lucide-react';
 import './App.css';
 import './dashboard.css';
@@ -124,6 +125,12 @@ function App() {
       addLog('message_out', `AI Membalas ke ${data.to.split('@')[0]}: "${data.body}"`);
     });
 
+    newSocket.on('logout_success', () => {
+      addLog('info', 'Berhasil logout dari WhatsApp.');
+      setStatus('waiting_qr');
+      setQrCode(null);
+    });
+
     return () => {
       newSocket.disconnect();
     };
@@ -167,6 +174,15 @@ function App() {
   const openAdmin = () => {
     setShowSettings(true);
     setSidebarOpen(false);
+  };
+
+  const handleLogout = () => {
+    if (socket) {
+      if (window.confirm("Yakin ingin logout dari WhatsApp? Anda harus scan QR ulang nanti.")) {
+        socket.emit('logout');
+        setStatus('connecting'); 
+      }
+    }
   };
 
   const selectTab = (tab: 'knowledge' | 'general') => {
@@ -312,9 +328,18 @@ function App() {
                 </div>
               </div>
 
-              <button id="btn-cta-admin" className="sc-btn-cta" onClick={openAdmin}>
-                <Database size={18} /> Buka Panel Admin
-              </button>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
+                <button id="btn-cta-admin" className="sc-btn-cta" onClick={openAdmin}>
+                  <Database size={18} /> Buka Panel Admin
+                </button>
+                <button 
+                  className="sc-btn-outline" 
+                  onClick={handleLogout}
+                  style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                >
+                  <LogOut size={18} /> Logout
+                </button>
+              </div>
             </div>
           )}
         </section>

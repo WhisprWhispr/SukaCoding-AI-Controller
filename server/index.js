@@ -216,6 +216,23 @@ io.on('connection', (socket) => {
     await saveSettingsToFirebase(botSettings);
     io.emit('settings', botSettings);
   });
+
+  // Terima permintaan logout dari UI
+  socket.on('logout', async () => {
+    console.log('Permintaan logout diterima dari UI');
+    try {
+      if (isClientReady) {
+        await client.logout();
+      }
+      isClientReady = false;
+      currentQrCode = '';
+      io.emit('logout_success');
+      console.log('Berhasil logout. Memulai ulang client untuk QR baru...');
+      await client.initialize();
+    } catch (err) {
+      console.error('Gagal logout:', err);
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3001;
