@@ -557,9 +557,15 @@ function App() {
                         className="sc-textarea"
                         value={settings.systemPrompt}
                         onChange={e => setSettings({ ...settings, systemPrompt: e.target.value })}
-                        onBlur={() => handleSaveSettings(settings)}
                         rows={5}
                       />
+                      <button 
+                        className="sc-btn-save" 
+                        style={{ marginTop: '12px' }}
+                        onClick={() => handleSaveSettings(settings)}
+                      >
+                        <Save size={16} /> Simpan Instruksi Dasar
+                      </button>
                     </div>
 
                     <div className="sc-setting-block" style={{ marginTop: '20px' }}>
@@ -571,23 +577,24 @@ function App() {
                         value={(settings.ignoredNumbers || []).join(', ')}
                         onChange={e => {
                           const val = e.target.value;
-                          // Jangan format array saat user sedang mengetik agar koma tidak hilang/loncat
-                          // Kita simpan string as is, tapi karena settings.ignoredNumbers array,
-                          // lebih baik pakai state lokal atau biarkan di-split, tapi UI bisa glitch kalau ngetik koma.
-                          // Untuk amannya, saat onChange kita langsung update array-nya.
                           const inputArr = val.split(',').map(s => s.trim());
                           setSettings({ ...settings, ignoredNumbers: inputArr });
                         }}
-                        onBlur={() => {
-                          // Bersihkan array kosong sebelum disave
+                        rows={3}
+                        placeholder="628123456789, 628987654321"
+                      />
+                      <button 
+                        className="sc-btn-save" 
+                        style={{ marginTop: '12px' }}
+                        onClick={() => {
                           const cleaned = (settings.ignoredNumbers || []).filter(s => s !== '');
                           const newSettings = { ...settings, ignoredNumbers: cleaned };
                           setSettings(newSettings);
                           handleSaveSettings(newSettings);
                         }}
-                        rows={3}
-                        placeholder="628123456789, 628987654321"
-                      />
+                      >
+                        <Save size={16} /> Simpan Nomor Hitam
+                      </button>
                     </div>
                   </div>
                 </>
