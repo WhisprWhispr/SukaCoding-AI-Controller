@@ -562,7 +562,10 @@ function App() {
                       <button 
                         className="sc-btn-save" 
                         style={{ marginTop: '12px' }}
-                        onClick={() => handleSaveSettings(settings)}
+                        onClick={() => {
+                          handleSaveSettings(settings);
+                          alert('Instruksi Dasar berhasil disimpan!');
+                        }}
                       >
                         <Save size={16} /> Simpan Instruksi Dasar
                       </button>
@@ -591,6 +594,7 @@ function App() {
                           const newSettings = { ...settings, ignoredNumbers: cleaned };
                           setSettings(newSettings);
                           handleSaveSettings(newSettings);
+                          alert('Daftar Nomor Hitam berhasil disimpan!');
                         }}
                       >
                         <Save size={16} /> Simpan Nomor Hitam
