@@ -180,8 +180,21 @@ client.on('message', async (message) => {
     ...(botSettings.ignoredNumbers || [])
   ];
 
-  if (ignoredNumbers.some(num => typeof num === 'string' && num.trim() !== '' && message.from.includes(num.trim()))) {
-    console.log(`Pesan dari ${message.from} diabaikan (masuk daftar hitam AI).`);
+  let contactNumber = '';
+  try {
+    const contact = await message.getContact();
+    contactNumber = contact?.number || '';
+  } catch (err) {}
+
+  // Cek apakah pesan dari newsletter ATAU nomor pengirim ada di daftar hitam
+  const isIgnored = message.from.endsWith('@newsletter') || ignoredNumbers.some(num => {
+    const cleanNum = typeof num === 'string' ? num.trim() : '';
+    if (!cleanNum) return false;
+    return message.from.includes(cleanNum) || (contactNumber && contactNumber.includes(cleanNum));
+  });
+
+  if (isIgnored) {
+    console.log(`Pesan dari ${message.from} (No: ${contactNumber}) diabaikan (masuk daftar hitam atau newsletter).`);
     return;
   }
 
