@@ -43,7 +43,8 @@ let botSettings = {
   systemPrompt: "Anda adalah asisten AI pintar untuk WhatsApp Bisnis. Anda harus menjawab pertanyaan pelanggan berdasarkan 'Knowledge Base' yang diberikan di bawah ini. Jawab dengan ramah, sopan, dan persuasif berbahasa Indonesia.",
   knowledgeItems: [
     { id: '1', title: 'Info Dasar', content: 'Kami adalah layanan bisnis profesional.' }
-  ]
+  ],
+  ignoredNumbers: []
 };
 
 // Fungsi memuat Knowledge Base & Settings dari Firebase
@@ -56,7 +57,8 @@ async function loadSettingsFromFirebase() {
       botSettings = { 
         ...botSettings, 
         ...data,
-        knowledgeItems: data.knowledgeItems || botSettings.knowledgeItems 
+        knowledgeItems: data.knowledgeItems || botSettings.knowledgeItems,
+        ignoredNumbers: data.ignoredNumbers || botSettings.ignoredNumbers
       };
       console.log('✅ Berhasil memuat Knowledge Base dari Firebase');
     } else {
@@ -172,14 +174,13 @@ client.on('message', async (message) => {
   
   if (message.from === 'status@broadcast') return;
   
-  // Daftar nomor yang TIDAK BOLEH dibalas oleh AI (hanya angkanya saja)
+  // Daftar nomor yang TIDAK BOLEH dibalas oleh AI (gabungan dari UI dan sistem)
   const ignoredNumbers = [
-    '62895393903656', // Nomor 1 yang diminta user
-    '6287829112109',  // Nomor 2 yang diminta user
-    '0@c.us',         // Nomor resmi sistem WhatsApp
+    '0@c.us', // Nomor resmi sistem WhatsApp
+    ...(botSettings.ignoredNumbers || [])
   ];
 
-  if (ignoredNumbers.some(num => message.from.includes(num))) {
+  if (ignoredNumbers.some(num => typeof num === 'string' && num.trim() !== '' && message.from.includes(num.trim()))) {
     console.log(`Pesan dari ${message.from} diabaikan (masuk daftar hitam AI).`);
     return;
   }

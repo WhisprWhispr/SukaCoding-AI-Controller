@@ -45,6 +45,7 @@ type BotSettings = {
   ignoreGroups: boolean;
   systemPrompt: string;
   knowledgeItems: KnowledgeItem[];
+  ignoredNumbers: string[];
 };
 
 // Pakai hostname yang sedang dibuka, supaya dashboard juga bisa diakses dari HP di jaringan WiFi yang sama
@@ -70,7 +71,8 @@ function App() {
     botEnabled: true,
     ignoreGroups: true,
     systemPrompt: 'Anda adalah asisten AI pintar.',
-    knowledgeItems: []
+    knowledgeItems: [],
+    ignoredNumbers: []
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -113,7 +115,8 @@ function App() {
     newSocket.on('settings', (receivedSettings: BotSettings) => {
       setSettings({
         ...receivedSettings,
-        knowledgeItems: receivedSettings.knowledgeItems || []
+        knowledgeItems: receivedSettings.knowledgeItems || [],
+        ignoredNumbers: receivedSettings.ignoredNumbers || []
       });
     });
 
@@ -556,6 +559,34 @@ function App() {
                         onChange={e => setSettings({ ...settings, systemPrompt: e.target.value })}
                         onBlur={() => handleSaveSettings(settings)}
                         rows={5}
+                      />
+                    </div>
+
+                    <div className="sc-setting-block" style={{ marginTop: '20px' }}>
+                      <h4>Daftar Nomor Hitam (Ignored Numbers)</h4>
+                      <p>Masukkan nomor WhatsApp yang TIDAK BOLEH dibalas oleh AI (pisahkan dengan koma). Contoh: 6281234567, 6289876543</p>
+                      <textarea
+                        id="input-ignored-numbers"
+                        className="sc-textarea"
+                        value={(settings.ignoredNumbers || []).join(', ')}
+                        onChange={e => {
+                          const val = e.target.value;
+                          // Jangan format array saat user sedang mengetik agar koma tidak hilang/loncat
+                          // Kita simpan string as is, tapi karena settings.ignoredNumbers array,
+                          // lebih baik pakai state lokal atau biarkan di-split, tapi UI bisa glitch kalau ngetik koma.
+                          // Untuk amannya, saat onChange kita langsung update array-nya.
+                          const inputArr = val.split(',').map(s => s.trim());
+                          setSettings({ ...settings, ignoredNumbers: inputArr });
+                        }}
+                        onBlur={() => {
+                          // Bersihkan array kosong sebelum disave
+                          const cleaned = (settings.ignoredNumbers || []).filter(s => s !== '');
+                          const newSettings = { ...settings, ignoredNumbers: cleaned };
+                          setSettings(newSettings);
+                          handleSaveSettings(newSettings);
+                        }}
+                        rows={3}
+                        placeholder="628123456789, 628987654321"
                       />
                     </div>
                   </div>
