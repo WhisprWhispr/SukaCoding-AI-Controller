@@ -78,6 +78,18 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<KnowledgeItem | null>(null);
 
+  // Premium Toast State
+  const [toast, setToast] = useState<{message: string, visible: boolean} | null>(null);
+  const toastTimer = useRef<any>(null);
+
+  const showToast = (message: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ message, visible: true });
+    toastTimer.current = setTimeout(() => {
+      setToast(prev => prev ? { ...prev, visible: false } : null);
+    }, 3500);
+  };
+
   const addLog = (type: LogEntry['type'], text: string) => {
     setLogs(prev => [...prev, {
       id: Date.now().toString() + Math.random().toString(),
@@ -220,6 +232,7 @@ function App() {
     handleSaveSettings(updatedSettings);
     setShowModal(false);
     setEditingItem(null);
+    showToast('Aturan berhasil disimpan!');
   };
 
   const deleteKnowledgeItem = (id: string) => {
@@ -229,6 +242,7 @@ function App() {
     };
     setSettings(updatedSettings);
     handleSaveSettings(updatedSettings);
+    showToast('Aturan berhasil dihapus!');
   };
 
   const copyRule = () => {
@@ -564,7 +578,7 @@ function App() {
                         style={{ marginTop: '12px' }}
                         onClick={() => {
                           handleSaveSettings(settings);
-                          alert('Instruksi Dasar berhasil disimpan!');
+                          showToast('Instruksi Dasar berhasil disimpan!');
                         }}
                       >
                         <Save size={16} /> Simpan Instruksi Dasar
@@ -594,7 +608,7 @@ function App() {
                           const newSettings = { ...settings, ignoredNumbers: cleaned };
                           setSettings(newSettings);
                           handleSaveSettings(newSettings);
-                          alert('Daftar Nomor Hitam berhasil disimpan!');
+                          showToast('Daftar Nomor Hitam berhasil disimpan!');
                         }}
                       >
                         <Save size={16} /> Simpan Nomor Hitam
@@ -654,6 +668,12 @@ function App() {
           )}
         </div>
       )}
+
+      {/* PREMIUM TOAST NOTIFICATION */}
+      <div className={`sc-toast ${toast?.visible ? 'show' : ''}`}>
+        <CheckCircle2 size={20} />
+        <span>{toast?.message}</span>
+      </div>
     </div>
   );
 }

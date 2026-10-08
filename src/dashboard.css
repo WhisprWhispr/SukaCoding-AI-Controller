@@ -1103,3 +1103,41 @@
 @media (max-width: 360px) {
   .sc-brand-title .sc-title-suffix { display: none; }
 }
+
+/* ---------- PREMIUM TOAST NOTIFICATION ---------- */
+.sc-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 14px 22px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  transform: translateY(100px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 9999;
+}
+
+.sc-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .sc-toast {
+    bottom: 80px; /* Above mobile nav */
+    right: 16px;
+    left: 16px;
+    justify-content: center;
+  }
+}
